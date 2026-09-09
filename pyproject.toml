@@ -1,0 +1,10 @@
+[project]
+name = "nebius-physical-ai"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["npa[dev]"]
+
+[tool.uv.sources]
+npa = { path = "./npa", editable = true }
