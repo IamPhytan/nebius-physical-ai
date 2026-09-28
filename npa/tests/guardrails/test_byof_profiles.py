@@ -23,6 +23,7 @@ GLOBAL_CONFIG = "skypilot-kubernetes-rtxpro.yaml"
 EXPECTED_PROFILES = frozenset(
     {
         "byof-container-smoke-rtxpro.yaml",
+        "byof-solution-smoke-robomimic-b200-gpu.yaml",
         "byof-datagen-rtxpro-smoke.yaml",
         "byof-solution-smoke-gymnasium-robotics-rtxpro-gpu.yaml",
         "byof-solution-smoke-libero-b200-gpu.yaml",

@@ -87,6 +87,9 @@ MANUAL_GATES = {
     ),
     "NPA_BURST_E2E_IMAGE": "operator supplies the exact immutable burst validation image",
     "NPA_E2E_BURST": "full burst GPU coverage is an explicitly selected live suite",
+    "NPA_BYOF_ROBOMIMIC_LIVE_B200": (
+        "robomimic B200 training requires operator runtime approval and exact private selectors"
+    ),
     "NPA_BYOF_LIVE_CONTAINER": "BYOF executes third-party source only after operator review",
     "NPA_BYOF_LIVE_GPU": "BYOF GPU mutation requires a reviewed onboarding target",
     "NPA_BYOF_GYMNASIUM_ROBOTICS_LIVE_GPU": (

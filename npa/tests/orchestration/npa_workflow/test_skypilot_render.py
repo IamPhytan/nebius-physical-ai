@@ -11,6 +11,7 @@ import yaml
 from typer.testing import CliRunner
 
 from npa.cli.main import app
+from npa.deploy.images import container_image_for_tool
 from npa.orchestration.npa_workflow.detect import (
     detect_submit_format,
     is_npa_workflow_spec,
@@ -191,6 +192,44 @@ def test_non_isaac_byof_specs_render_their_declared_runtime_image(
     task = [doc for doc in yaml.safe_load_all(rendered) if doc][-1]
     assert task["resources"]["image_id"].startswith(expected_image)
     assert "ACCEPT_EULA" not in task["envs"]
+
+
+def test_robomimic_plan_uses_unbuilt_placeholder_and_stages_npa(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("NPA_SRC_S3_URI", "s3://example-bucket/npa-src/exact")
+    spec = load_spec(NPA_SPECS / "byof-robomimic.yaml")
+    plan = build_plan(spec, run_id="robomimic-private-plan")
+
+    with pytest.raises(ValueError, match="publication-quarantined for releases"):
+        container_image_for_tool("robomimic")
+
+    placeholder = render_skypilot_yaml(
+        spec,
+        plan,
+        run_id="robomimic-private-plan",
+        options=SkypilotRenderOptions(materialize_registry_secrets=False),
+    )
+    placeholder_task = [doc for doc in yaml.safe_load_all(placeholder) if doc][-1]
+    assert placeholder_task["resources"]["image_id"].endswith(
+        "/npa-robomimic:0.1.0-neutral-unbuilt"
+    )
+
+    private_image = "private.invalid/npa-robomimic@sha256:" + "a" * 64
+    rendered = render_skypilot_yaml(
+        spec,
+        plan,
+        run_id="robomimic-private-plan",
+        options=SkypilotRenderOptions(
+            image_overrides={"workbench.byof.repo": private_image},
+            materialize_registry_secrets=False,
+        ),
+    )
+    task = [doc for doc in yaml.safe_load_all(rendered) if doc][-1]
+    assert task["resources"]["image_id"] == f"docker:{private_image}"
+    assert task["envs"]["NPA_SRC_S3_URI"] == "s3://example-bucket/npa-src/exact"
+    assert "npa CLI not found" in task["setup"]
+    assert "npa workbench byof run" in task["run"]
 
 
 def test_kubernetes_profile_disk_size_renders_as_ephemeral_storage() -> None:

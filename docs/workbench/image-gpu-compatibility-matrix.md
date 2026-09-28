@@ -133,6 +133,7 @@ likewise predates its current coherent release.
 | `npa-sam3` | unverified | unverified | unverified | unverified | unverified |
 | `npa-mjlab` (private candidate) | unverified | unverified | **verified** [CUDA 13 trained G1 rollout](validation/mjlab-trained-g1-20260925.json) | current CUDA 13 unverified; [historical CUDA 12.8 acceptance](validation/mjlab-gpu-20260924.json) (1 and 8 GPUs) | unverified |
 | `npa-sam2` | unverified | unverified | unverified | **verified** [native capability evidence](validation/studio-public-models-20260916.json) | unverified |
+| `npa-robomimic` (quarantined neutral candidate) | unbuilt; not validated | unbuilt; not validated | unbuilt; not validated | unbuilt; compatibility unknown; one-B200 hard gate deferred | unbuilt; not validated |
 | `npa-ltx2` | unverified runtime | unverified runtime | **verified** [accepted records](#accepted-release-evidence) | unverified runtime | unverified runtime |
 | `npa-openpi` | blocked (RTX-only runtime contract) | blocked (RTX-only runtime contract) | pending exact-digest full-DROID qualification | blocked (`sm_120`-only probe/runtime contract) | blocked (`sm_120`-only probe/runtime contract) |
 | `npa-curobo` | unbuilt; not validated | unbuilt; not validated | unbuilt; not validated | unbuilt; not validated | unbuilt; not validated |
@@ -174,6 +175,14 @@ likewise predates its current coherent release.
 **blocked** — an upstream dependency does not support the architecture. Reason and tracking link are in the manifest's per-image fields or `known_gaps`. Whether a given blocked cell can be closed at all is evaluated in [Can the blocked images support every Nebius GPU?](blocked-image-gpu-feasibility.md) — some are physical (rendering needs RT cores), others are a stale software gate or an unspent GPU hour.
 **CPU** — CPU-only image. It runs on a host with any of these GPUs; only node-pool scheduling matters.
 **not built** — no retained candidate artifact or complete current byte-scan proof exists, so no cell has image evidence behind it. Reading the Dockerfile or a reference-build graph is not evidence.
+
+The `npa-robomimic` row records manifest completeness only. The neutral image
+candidate remains quarantined and unbuilt, with no byte qualification, resolved
+CUDA/PyTorch runtime, or GPU result. Its exactly-one-B200 functional gate remains
+deferred behind the authoritative CUDA/cuDNN rights decision and separate
+manager transaction authorization; the row is not compatibility or public
+acceptance evidence. Its redistribution class remains `unvalidated` until an
+exact selected-byte licence review establishes a different class.
 
 `npa-ncore` packages CPU-only COLMAP ingestion, not NRE or a CUDA runtime.
 Its [source-capture workflow](guides/nurec-colmap-reconstruct.md) uses a separate,
