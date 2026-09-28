@@ -134,6 +134,26 @@ existing `--torch-compile` path. Five paired warm samples measured 2.645× media
 speedup on RTX PRO 6000 and 2.278× on B200, with finite 32×14 actions inside the
 documented BF16 tolerance and five durable read-back objects per final target.
 
+## Habitat-Sim development image
+
+- **`npa-habitat-sim`** uses `habitat-sim/Dockerfile.bootstrap`, a neutral
+  Ubuntu/Python launcher with accompanying exact Ubuntu sources. Pinned
+  Habitat-Sim, native build dependencies, scientific wheels and the attributed
+  CC BY Skokloster scene are fetched only at runtime. It remains in
+  `UNVALIDATED_PUBLICATION_TOOLS` for supported release selection. The public
+  development image at digest
+  `sha256:0ec05dca8b64b9ad4ed194d0e91762adb5a46a186d3dbc49cde4287f437800f2`
+  was built from `dd49fdb6ee66a72e505b9830a29dad883df91e91` and passed its
+  exact-image scans and one-RTX managed-workflow capability gate: 19 RGB frames,
+  19 depth frames, 19 Bullet steps, and 2.2466 metres of traversal. The
+  [development build](https://github.com/nebius/nebius-physical-ai/actions/runs/36092335522)
+  is bound to its GPU report, artifact manifest, provenance, SBOM, and unchanged
+  image inputs in the [development evidence manifest](validation/habitat-sim-development-image-manifest.json).
+  This 19-step functional workload is not a long benchmark or policy-training
+  result and does not promote a supported release. The legacy baked candidate remains
+  quarantined and is not the public build target. See
+  [`byof-habitat-sim.md`](byof-habitat-sim.md).
+
 ## Native model publication
 
 The `npa-diffusers`, `npa-lingbot-world` and `npa-sam2` source-only runtimes
