@@ -30,6 +30,7 @@ gpus  Print advertised GPU names using an owned API for a selected context.
 reconcile-controller  Reconcile an orphaned workflow against its original exclusive controller.
 reconcile-absent  Verify original native absence without inferring historical job success.
 trigger  Watch S3-compatible data prefixes and retrigger Workbench workflows.
+demo  Run complete public sample workflows and view their results.
 challenge  Prepare a BEHAVIOR DEV evaluation from one setup file.
 ```
 
@@ -63,6 +64,7 @@ challenge  Prepare a BEHAVIOR DEV evaluation from one setup file.
 | `reconcile-controller` | Reconcile an orphaned workflow against its original exclusive controller. |
 | `reconcile-absent` | Verify original native absence without inferring historical job success. |
 | `trigger` | Watch S3-compatible data prefixes and retrigger Workbench workflows. |
+| `demo` | Run complete public sample workflows and view their results. |
 | `challenge` | Prepare a BEHAVIOR DEV evaluation from one setup file. |
 
 ## Examples
