@@ -552,6 +552,61 @@ configured bucket and storage service account for real. See
 [`tests/e2e/test_config_storage_cleanup_live_e2e.py`](tests/e2e/test_config_storage_cleanup_live_e2e.py)
 for the full env contract and safety preconditions.
 
+For the CPU agent credential lifecycle, set `NPA_AGENT_METADATA_LIVE_CONFIG`
+to an owner-only JSON file containing `deploy_args` (starting with `agent`,
+`deploy`, exactly one unused `--name`, exactly one selected `--project`,
+`--agent-only`, and explicit ingress settings) and `evidence_dir` outside the
+checkout. Use private
+`NPA_CONFIG_DIR` and `NPA_OPERATION_JOURNAL_DIR` directories and complete the
+credential and exact-name capacity preflights first. Run:
+
+```bash
+NPA_INTEGRATION_E2E=1 npa/.venv/bin/python -m pytest \
+  npa/tests/e2e/test_agent_metadata_live.py -q
+```
+
+The check deploys a real CPU agent, verifies metadata-backed access and resource
+inventory with successful project and tenant discovery, rejects anonymous
+requests, and compares deployed Python sources with the tested checkout. It
+also captures the backend bytes rendered by the actual local deploy call and
+requires the deployed backend SHA-256 to match. HTTPS verifies the hostname and
+the server certificate retrieved through provider-pinned SSH, and rejects an
+untrusted certificate. It retains the certificate, deployment manifest and
+matched backend hashes privately, then destroys only the test agent with shared
+IAM preserved. The configuration has no default; without it the test skips.
+
+The deployed agent supports the attached service-account `instance_metadata`
+credential source staged by bootstrap. `configured_profile` is not a deployed
+agent credential mode: inventory and cloud commands reject it, missing markers
+and unknown markers before starting a process. The selected metadata profile and
+configuration are explicit; operator bearer tokens, profile choices and token
+files are not inherited as an alternate identity.
+
+`GET /api/infra/k8s` separates `cloud_discovery.status: available` (including a
+verified empty `cloud_clusters` list) from `unavailable`, with a safe
+`error.kind`. A cluster's `raw.accelerator_discovery` makes the same distinction
+for node-group lookup. Timeout, cleanup-in-progress, missing provenance,
+permission denial and invalid responses do not establish resource absence.
+Without another configured or cached backend, `has_infra` is null and the agent
+refuses absence-based provisioning until discovery succeeds. Configured
+backends remain available for their ordinary target validation.
+If node-group discovery fails for the selected backend, workflow drafts report
+accelerator availability as unverified and remain non-runnable, including when
+the request names an accelerator. Failed cloud discovery does not override an
+independently configured backend.
+
+A timed-out child keeps new cloud commands blocked until its owned process
+group is proven absent and its leader reaped. If procfs visibility or child
+ownership is uncertain, cleanup retains that block and backs off its inspection
+cadence instead of repeatedly scanning at ten times per second. Restored procfs
+visibility permits recovery; lost process ownership needs operator diagnosis
+and a service restart after verifying cleanup. The agent never releases the
+block or signals a reusable PID based on uncertain evidence.
+Reaping the leader alone is insufficient: descendants can outlive it. Missing
+procfs (an unsupported host or missing mount) and denied procfs access retain the
+same safety block but emit distinct `procfs_unavailable` and
+`procfs_permission_denied` diagnostics once per process, without repetitive logs.
+
 See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full test layout and PR
 conventions (branch → PR → squash, one approval, never self-approve).
 
