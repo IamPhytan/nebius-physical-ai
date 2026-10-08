@@ -91,6 +91,45 @@ Every generated clip must pass the gate. A high average score does not override
 a failed profile. Increasing the count adds more clips that must pass.
 An accepted gate does not certify motion, contacts or training suitability.
 
+New Cosmos 3 runs record the scene rectangle in `source_content_region` during
+reference preparation. The pipeline also inspects every source frame for
+persistent paired black bands at opposite edges, including bars embedded in
+the source. Detection requires near-black bands, roughly symmetric widths and
+a clear brightness step into the scene. It abstains on ambiguous, one-sided,
+changing or insufficiently observed borders. Known normalization padding stays
+protected even when embedded-bar detection abstains. Interior dark objects are
+not padding. No additional YAML setting is needed.
+
+Before publication, the pipeline restores those borders from the source and
+encodes a lossless RGB H.264 MP4. Every decoded generated scene pixel and source
+border pixel must match exactly, with unchanged frame count and timing. These
+MP4s are larger than lossy model outputs. `raw_model_video.mp4` and
+`raw_model_metadata.json` preserve the unmodified model evidence; the published
+`augmented_video.mp4`, extracted frames and alignment hashes describe the
+corrected output. `metadata.json.padding_preservation` records both video
+hashes, scene/border pixel hashes and the verified policy. This fixes border
+artifacts; it does not repair defects within the generated scene.
+
+The evaluator verifies the source hash and complete
+video alignment, then uses lossless scene crops for all four checks. Artificial
+letterbox or pillarbox pixels cannot lower the scene score or satisfy a
+requested appearance change. Real black objects remain in the scene. Explicit
+metric regions keep their full-canvas coordinates and are intersected with the
+scene; a padding-only region is an error.
+
+Each clip's `spatial_evidence` reports the full-video and crop hashes, rectangle,
+excluded pixel fraction and a separate padding diagnostic. The diagnostic
+reports mean RGB error and the fraction of padding pixels differing from the
+source by more than 8 RGB levels in any channel. It is advisory, has no quality
+pass threshold, and does not change the scene score. Successfully preserved
+borders have zero RGB error against the reference. The raw output remains
+available to inspect what the model originally generated.
+
+Older variants without region provenance retain full-frame scoring. Start a
+fresh run to detect and preserve borders automatically; existing stored videos
+are not rewritten. Invalid or stale provenance fails instead of silently
+selecting another crop.
+
 Compare source/output frames at contacts, generation-window joins and the final
 state. Check that the requested material or lighting is visibly present inside
 the original camera area, and inspect added padding separately. Preserve raw
@@ -124,6 +163,28 @@ The canonical workflow deliberately finishes a rejected batch with a failed
 requires that exact rejection path, a valid rejected disposition and successful
 preceding stages; other workflow failures do not qualify.
 
+To audit padding-aware scoring on retained outputs, use the same private case
+file with `NPA_PAIDF_PADDING_CASES`, set `NPA_PAIDF_PADDING_EVIDENCE_DIR` to a
+private local directory, and run
+`npa/tests/e2e/test_paidf_padding_evaluation_live.py`. This audit downloads the
+videos and makes real Token Factory calls. It requires the same hallucination
+engine as the retained grades; for production Cosmos Evaluator runs, use its
+pinned NVIDIA checkout and dependencies (`NPA_COSMOS_EVALUATOR_SRC`). Legacy
+rectangles are reconstructed only from the retained normalization recipe and
+the hash-verified original and prepared videos. Reports are written locally;
+retained videos and original grades are not overwritten. The audit also measures
+a fresh full-frame hallucination baseline with the same engine to isolate the
+effect of padding removal on that metric.
+
+To test source detection and border preservation on retained real outputs, use
+`NPA_PAIDF_PADDING_CASES` with the same private case file and set
+`NPA_PAIDF_PADDING_PRESERVATION_DIR` to a new private local directory, then run
+`npa/tests/e2e/test_paidf_padding_preservation_live.py` with the integration and
+project variables above. This makes read-only storage calls, detects borders
+without relying on old preparation metadata, and checks every decoded scene
+and border pixel in each corrected video. It neither generates new model
+outputs nor reruns the VLM.
+
 ## Public reference measurement
 
 The unchanged recipe was run on episode 0, camera
@@ -131,7 +192,8 @@ The unchanged recipe was run on episode 0, camera
 [`lerobot/aloha_static_cups_open`](https://huggingface.co/datasets/lerobot/aloha_static_cups_open/tree/d793c969cf716001dcca18a0842c3d7e9de9e41b).
 The prepared reference and each output contain 192 frames at 24 fps. Both
 generation passes produced all twelve separate videos, with full decoding and
-timestamp alignment verified. Results recorded on October 7–8, 2026:
+timestamp alignment verified. Results recorded on October 7–8, 2026 using the
+original full-frame evaluator:
 
 | Generation pass | Guidance / steps | Mean score | Clips passing gate | Temporal advisory passes | Appearance advisory passes | Batch decision |
 |---|---|---|---|---|---|---|
