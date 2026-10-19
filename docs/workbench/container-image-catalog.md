@@ -630,6 +630,22 @@ three thin Genesis derivatives override inherited base metadata explicitly.
 Replacements must pass exact-config disclosure checks, non-root validation,
 image scanning, and capability evaluation before re-entering this table.
 
+The [October 6 rebuild follow-up](validation/807-image-rebuild-follow-up-20261006.md)
+replaces stale Isaac and EnvGen parents in the derivative build recipes and fixes
+additional dependency and snapshot inputs. Its parent development builds passed
+their trusted publication jobs and independent anonymous source/config checks.
+Seven child jobs also passed trusted publication and independent digest/source
+and provenance/SBOM signature verification, as recorded in that follow-up.
+Genesis has a rebuilt candidate that passed its narrow CPU gate, but GPU teacher
+optimization, export, and rendered-physics qualification remain pending. Default
+LeRobot still requires a compatible policy closure and native execution. The
+[stock public Genesis contract](../../npa/docker/workbench/genesis/README.md)
+documents its retained rigid workload, ACT dependencies and excluded optional
+capabilities. None is added to the accepted-release table by these source changes. Current examples
+also stop automatically selecting withdrawn image digests through literal
+resource or provenance inputs. Historical validation records retain their
+original image identities.
+
 | Friendly name | Image (`ghcr.io/nebius/nebius-physical-ai/...`) | Published tag(s) | Built | What it does |
 | --- | --- | --- | --- | --- |
 | SONIC Retargeting 0.1.1 | `npa-retargeting` | `0.1.1` | 2026-06-16 | CPU-only motion retargeting and motion-library conversion feeding SONIC locomotion training. A slim `python:3.11` image for the inexpensive preprocessing stage before GPU work. |

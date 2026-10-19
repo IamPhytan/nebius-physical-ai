@@ -32,6 +32,25 @@ even if a different tenant inventory API is denied.
 Creating a legacy shared filesystem requires a resolved tenant and region;
 missing identity now stops provisioning before apply.
 
+Sim2Real's `rerun regen` and `rerun serve --local-record` operate on existing
+artifacts without resolving execution image defaults. Regeneration therefore
+remains available after an old runtime is quarantined. Executing new workloads,
+including `rerun heldout-only`, still requires qualified component images.
+For `rerun regen` and `rerun heldout-only`, explicit `--s3-bucket` and
+`--s3-endpoint` override their corresponding project coordinates. With
+`--project`, a complete isolated project record supplies the remaining bucket,
+endpoint, and client credentials; an unknown or incomplete record refuses rather
+than falling back to host credentials or environment settings. Without
+`--project`, the existing Sim2Real environment settings apply. For `workbench
+health sim2real`, `--project` applies when the selected checks include `s3`: it
+supplies the reachability-probe target and isolated credentials unless the
+corresponding S3 flag is explicit. A selection without `s3` refuses `--project`
+with an explicit error.
+`--s3-prefix` is an execution-config seam. An S3 reachability check accepts it
+but probes only the bucket and endpoint; image-independent selections that
+include none of `s3`, `config`, or `registry` refuse it.
+See the [Sim2Real guide](../docs/workbench/guides/sim2real-workflow.md).
+
 Optional [Workbench access](../docs/workbench/team-access.md) adds CLI/API/SDK shared
 execution through `npa workbench submit`, `runs`, `run`, and `whoami`, and the
 existing `npa.sdk.workbench.team` SDK. Administrators use `npa workbench access`.
@@ -107,7 +126,8 @@ environment settings apply. `rerun serve --project` retains its legacy
 saved/default-project and environment fallback behavior. For `workbench
 health sim2real`, `--project` applies when the selected checks include `s3`: it
 supplies the reachability-probe target and isolated credentials unless the
-corresponding S3 flag is explicit. It has no effect on selections without `s3`.
+corresponding S3 flag is explicit. A selection without `s3` refuses `--project`
+with an explicit error.
 See the [Sim2Real guide](../docs/workbench/guides/sim2real-workflow.md).
 
 `npa workbench vlm-eval review-visual` and its SDK write a separate private rich
@@ -534,6 +554,10 @@ SDK; previously published container pins retain their recorded build versions.
 - `npa.server`: FastAPI checkpoint-serving and inference server
 - `npa.adapter`: sim demo -> LeRobotDataset v3 conversion
 - `npa.genesis`: teacher training, demo generation, student evaluation
+  The [public Genesis image contract](docker/workbench/genesis/README.md) explains
+  its rigid workload, ACT dependencies and `NPA_GENESIS_SUPPORTED_STUDENT_POLICIES`
+  capability declaration; additional student policies require a qualified
+  operator image.
 
   Genesis teacher training uses RSL-RL 5.5.1 actor/critic models. The loader
   retains legacy ActorCritic checkpoint support and validates saved dimensions
