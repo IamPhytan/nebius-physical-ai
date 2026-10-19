@@ -408,6 +408,25 @@ UR10e's new sealed physics profile preserves its USD mimic-joint mechanics.
 
 ## Workbench Runtimes
 
+Agent status, live verification and final-artifact handoff verify HTTPS using
+the installed certificate read over authenticated SSH. The saved provider
+instance, public address and SSH key must still identify that agent. Unknown
+SSH keys, a substituted TLS certificate, expiry or a wrong hostname fail before
+HTTP credentials are sent. See [agent access](../docs/agent.md) for recovery.
+When trust setup fails, `agent status --json` returns an unhealthy status with
+an `error_category` and withheld endpoints, and exits with code 1.
+
+LeIsaac relay setup reads the agent's TLS certificate fingerprint through
+host-key-verified SSH before sending HTTPS or WSS credentials. To check an
+existing agent's certificate without changing it, set
+`NPA_LEISAAC_CERTIFICATE_LIVE_PROJECT` to its saved project alias and
+`NPA_LEISAAC_CERTIFICATE_LIVE_AGENT` to its saved agent name, then run
+`NPA_INTEGRATION_E2E=1 npa/.venv/bin/python -m pytest
+npa/tests/e2e/test_leisaac_certificate_live.py -q` from the repository root.
+Both variables are required for this opt-in check; there is no default target.
+See [LeIsaac transport security](../docs/workbench/leisaac-teleoperation.md)
+for certificate rotation and SSH trust requirements.
+
 Choose a runtime supported by the selected tool:
 
 | Mode | Runs on |
@@ -785,6 +804,16 @@ GitHub Actions dependencies daily and groups version updates into one
 `dependencies` PR. Review package declarations and generated locks together,
 regenerate CI pins after Python input changes, and validate the combined batch. Reproduce the scan
 with the [security gate instructions](../docs/security/merge-security-gate.md#reproduce-locally).
+
+FiftyOne's LeRobot importer and the policy container's Hub checkpoint downloader
+require custom Hub sources as `owner/repository@<full lowercase commit SHA>`.
+Bundled `lerobot/pusht` and `lerobot/diffusion_pusht` examples have fixed reviewed
+commits. Each download verifies the requested commit against Hub metadata and
+records its repository, type and commit in `.npa-hf-source.json`.
+Model checkpoints use a directory per commit so files removed from a later
+revision cannot survive from an older download. Invalid resolved commits stop
+before downloading or replacing the existing dataset cache. This freezes each
+transfer and repeat selection; it does not establish trust in an operator-selected repository.
 
 Dependabot excludes `ci/**` relative to `/npa`: omitting `/npa/ci` from the
 directory list does not exclude its nested manifests. Generated CI pins must
