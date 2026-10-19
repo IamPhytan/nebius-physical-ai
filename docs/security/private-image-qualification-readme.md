@@ -150,8 +150,8 @@ independently verifies and scans it again under the configured policy.
 ## Source, policy, and evidence boundaries
 
 The interface runs only from the reviewed default-branch workflow. The scanner
-is separately pinned to `075b66b76abd0188fb2cfffebfd3d318a729bd51`, which includes
-the original-manifest verifier and current scanner security hardening. The helper verifies that checkout is exact
+is separately pinned to `4234e7cddb2c213523d5ced36742f463e1920a06`, which includes
+the original-manifest verifier, retained-input adjudication and current scanner security hardening. The helper verifies that checkout is exact
 and clean, including ignored files such as pre-existing Python bytecode, before
 any scanner child starts. A scanner-pin update requires review; callers cannot select code.
 Its existing pinned Go and native matcher preparation plus real native
@@ -165,9 +165,11 @@ the public summary and native report explicitly record whether it is configured.
 The summary validates the policy digest, requires customer policy to be configured,
 and accepts only fixed configured/not-configured infrastructure statuses.
 Missing optional policy must not be described as full infrastructure-policy coverage. Neither secret
-is passed to SSH, copied to the VM, or logged. Scanner authorization and policy
-files remain within the ephemeral private runner directory and are removed
-when the helper exits normally. The job never uploads Actions artifacts.
+is passed to SSH, copied to the VM, or logged. Policy files remain within the
+ephemeral private runner directory and are removed when the helper exits normally.
+The original scanner authorization and other non-secret inputs are retained in
+the private receipt before cleanup for an explicitly reviewed adjudication.
+The job never uploads Actions artifacts.
 SSH keys and host-trust files have a separate owner-only temporary directory
 outside the image analysis root supplied to scanner children.
 
@@ -223,3 +225,11 @@ bootstrap checks, finding adjudication, or real CPU/GPU capability proof. These
 synthetic transport tests cannot prove live SSH access, available runner capacity,
 or native Linux scanner execution; the first reviewed dispatch must establish
 those facts and retain its exact image receipts.
+## Retained finding review
+
+Complete hosted scans retain exact authorization and non-secret input evidence
+for a later [private retained-image adjudication](retained-image-adjudication.md).
+That separate default-branch workflow requires a hash-authorized independent
+review of every occurrence, unchanged original image/source/policy bindings,
+and explicit transport identity checks. It preserves the raw scanner verdict
+and never exports policy values or establishes native GPU qualification.
