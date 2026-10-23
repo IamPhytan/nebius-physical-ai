@@ -177,6 +177,14 @@ publication gates plus the checked-in Blackwell validator and real
 0.5.1 as the current default or add a second `lerobot` row to the default public
 release plan.
 
+A fresh generic 0.5.1 rebuild subsequently failed its independent installed
+dependency and native default camera-decoder checks. Its narrow CPU ACT
+optimizer/checkpoint result does not qualify the image. See the
+[exact-image failure and compatible-closure repair](validation/lerobot-default-native-closure-20261006.md);
+a later candidate passed its scoped publication and native CPU gates but remains
+quarantined pending default/GPU capability qualification. It does not add a
+public release row or change the default.
+
 The four-wave [LeRobot transfer experiment](guides/lerobot-transfer.md) selects
 that optional 0.6.0 image by digest and stages its adapters from the checkout.
 It uses the image's non-root runtime user and baked SkyPilot prerequisites;
@@ -611,22 +619,21 @@ required operator images from legacy automatic public-image selection.
 
 The Ray Serve Dockerfile now derives from PAIDF's repaired Cosmos3 digest rather
 than retaining the withdrawn parent's SSH-key layers. The Isaac 3 OSS dependency
-lock selects PyJWT 2.15.0, while Transfer's hash-verified security override pins
-PyJWT 2.15.1; both carry the signature-verification fix that blocked rebuilt
-image scans. The controller and viewer use the immutable 2026-10-02 Debian
-snapshot with fixed Perl, GLib and Mbed TLS, and both upgrade inherited packages.
-EnvGen uses the 2026-10-09 Ubuntu snapshot and Loop Eval uses the 2026-10-02
-Ubuntu snapshot; both pin the fixed `linux-libc-dev` 5.15.0-198.208 package.
-EnvGen also applies cuRobo's
+lock and Transfer's hash-verified security override both select PyJWT 2.15.1,
+which fixes the critical signature-verification issue that blocked their rebuilt
+image scans. The controller and viewer use the immutable
+2026-10-02 Debian snapshot with fixed Perl, GLib and Mbed TLS, and both upgrade
+inherited packages. EnvGen uses the 2026-10-09 Ubuntu snapshot and Loop Eval
+uses the 2026-10-02 Ubuntu snapshot; both pin the fixed `linux-libc-dev`
+5.15.0-198.208 package. EnvGen also applies cuRobo's
 existing exact-source correction to an inert scikit-image recipe containing a
 historical token. The correction preserves executable behavior and removes
 the original source and bytecode before flattening the sanitized filesystem;
 derivatives must be rebuilt from that corrected parent to discard the old
 bytes from their layers. These are source repairs:
 newly built images must still pass all publication scans and real capability
-validation before any public default is restored. The affected historical
-releases remain quarantined; this source repair does not change other published
-defaults.
+validation before any public default is restored. Historical releases remain
+quarantined; this source repair does not change other published defaults.
 
 The scan-to-policy workflow selects repaired immutable development candidates
 for Isaac Lab and SONIC, and the GR00T training workflow selects a development
